@@ -96,12 +96,83 @@ Method | Summary
 `setFilterableListTextColor(ColorStateList)` | Changes text color of the filterable list's items.
 `setFilterableListElevation(float)` | Changes elevation of the filterable list.
 
+### How to use the chips
+There are a plethora of ways you can manipulate chips in `ChipsInputLayout`. However, the main abilities afforded by `ChipsInputLayout` are that you can set a list of chips that can be filtered by user input and set a list of chips that are pre-selected. Other features are listed in the table below.
+
+#### Using a chip
+`Chip` is the base object needed for `ChipsInputLayout`, and associated components in the library, to work properly. `ChipsInputLayout` can work with anything that is a `Chip`. So, that means that you can create any type of 'chip' data you want... simply inherit the `Chip` class and you're good to go! 
+
+Here's a small example:
+```java
+public class CoolChip extends Chip {
+    private final String coolName;
+    private final Uri coolPic;
+    
+    public CoolChip(String coolName, Uri coolPic) {
+        this.coolName = coolName;
+        this.coolPic = coolPic;
+    }
+    
+    Override
+    public String getTitle() {
+        return coolName;
+    }
+    
+    @Override
+    public Uri getAvatarUri() {
+        return coolPic;
+    }
+    
+    // ...other chip methods that are required to implement
+}
+```
+
+#### Setting a filterable list of chips
+`ChipsInputLayout` supports the ability to show/hide a list of chips that are filterable as the user inputs text into it. To use this feature, simply call `setFilterableChipList(List)` in `ChipsInputLayout`.
+
+Not calling `setFilterableChipList(List)` will imply you don't wish to use that feature, therefore, `ChipsInputLayout`, will not show/hide the filterable list as the user inputs text.
+
+Here is a simple example:
+``` java
+@Override
+protected void onCreate(List<ContactChip> chips) {
+    // ...Cool onCreate stuff in activity
+    
+    ChipsInputLayout chipsInput = (ChipsInputLayout)findViewById(R.id.chips_input);
+    
+    // ...Cool logic to acquire chips
+    List<AwesomeChip> chips = getReallyCoolChips();
+        
+    this.chipsInput.setFilterableChipList(chips);
+}
+```
+
+#### Setting a pre-selected list of chips:
+`ChipsInputLayout` supports the ability to set an already-selected list of chips. To use this feature, simply call `setSelectedChipList(List)` in `ChipsInputLayout`.
+
+Here is a simple example:
+```java
+@Override
+protected void onCreate(List<ContactChip> chips) {
+    // ...Cool onCreate stuff in activity
+    
+    ChipsInputLayout chipsInput = (ChipsInputLayout)findViewById(R.id.chips_input);
+    
+    // ...Cool logic to acquire chips
+    List<TagChip> defaultChips = getDefaultTagChips();
+        
+    this.chipsInput.setSelectedChipList(chips);
+}
+```
+
 ## Managing Chips
 Where this library capitalizes, is how it decentralizes where and how the selected and filterable chips are stored. This makes accessing and receiving updates to data source changes from various Android components really simple. 
 
-All chips are managed by, `ChipDataSource`, which is an abstraction to decouple the concrete implementation of how the abstract methods manage the chips. This means that other implementations of `ChipDataSource` can be made at your own leisure. *Currently, there is no method on `ChipsInputLayout` to programmatically change the data source; however, these will be future additions to the library.*
+All chips are managed by, `ChipDataSource`, which is an abstraction to decouple the concrete implementation of how the abstract methods manage the chips. This means that other implementations of `ChipDataSource` can be made at your own leisure. Simply call `changeChipDataSource(ChipDataSource)` in `ChipsInputLayout` to use your implementation of `ChipDataSource`.
 
-The current default implementation of `ChipDataSource` is `ListChipDataSource`, and it uses `ArrayList` as the list implementation for selected and filtered chip lists.
+Although not required, but definitely recommeneded, you can inherit the semi-concrete, `ObservableChipDataSource`, which is an implementation of `ChipDataSource` that handles the observer functionality for you properly so that it simplifies writing other `ChipDataSource` implementations.
+
+By default, `ChipsInputLayout` will automatically use `ListChipDataSource`; which is out-of-the-box really good at being processing and memory efficient, and it relies on the `ArrayList` to manage chips.
 
 ### Observing chip selection changes
 `ChipDataSource` has the ability to notify observers that want to observe specific chip selection events in `ChipDataSource`. The observers will be notified if a chip has been selected or unselected from the selected chip list in `ChipDataSource`. Both selection and deselection events will afford the chip that was selected or deselected respectively.
